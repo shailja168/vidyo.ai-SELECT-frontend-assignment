@@ -2,6 +2,7 @@
 import React, { useRef, useState, useEffect } from "react";
 import ReactPlayer from "react-player";
 import WaveSurfer from "wavesurfer.js";
+// import extractAudio from "./audioExtractor";
 
 const VideoPlayer = ({ videoUrl, onVideoSelect, videoMetadata }) => {
   const videoRef = useRef(null);
@@ -10,7 +11,6 @@ const VideoPlayer = ({ videoUrl, onVideoSelect, videoMetadata }) => {
   const [duration, setDuration] = useState(0);
   const [isPlaying, setIsPlaying] = useState(false);
   const [isHovered, setIsHovered] = useState(false);
-  const [wavesurferInitialized, setWavesurferInitialized] = useState(false);
 
   const handlePlayPause = () => {
     setIsPlaying(!isPlaying);
@@ -27,7 +27,6 @@ const VideoPlayer = ({ videoUrl, onVideoSelect, videoMetadata }) => {
       const newPosition = (played / duration) * 100;
       wavesurfer.current?.seekTo(newPosition / 100);
     }
-
     const canvas = canvasRef.current;
     if (canvas) {
       const ctx = canvas.getContext("2d");
@@ -49,38 +48,24 @@ const VideoPlayer = ({ videoUrl, onVideoSelect, videoMetadata }) => {
     setIsHovered(false);
   };
 
-  const initializeWaveSurfer = () => {
-    if (!wavesurferInitialized) {
-      const wavesurfer = WaveSurfer.create({
-        container: waveformRef.current,
-        waveColor: "#ddd",
-        progressColor: "#f55385",
-      });
-
-      wavesurfer.load(videoUrl);
-
-      // Cleanup on component unmount
-      return () => {
-        wavesurfer.destroy();
-      };
-
-      setWavesurferInitialized(true);
-    }
-  };
-
   useEffect(() => {
     onVideoSelect(videoRef);
-  }, [onVideoSelect]);
 
-  useEffect(() => {
-    // Perform WaveSurfer initialization when the video starts playing
-    if (isPlaying) {
-      const cleanupWaveSurfer = initializeWaveSurfer();
-      return cleanupWaveSurfer;
-    }
-  }, [isPlaying, videoUrl]);
-    
-    
+    // Initialize WaveSurfer
+    const wavesurfer = WaveSurfer.create({
+      container: waveformRef.current,
+      waveColor: "#ddd",
+      progressColor: "#f55385",
+    });
+
+    // Load the audio from the video
+    wavesurfer.load(videoUrl);
+
+    // Cleanup on component unmount
+    return () => {
+      wavesurfer.destroy();
+    };
+  }, [onVideoSelect, videoUrl]);
 
   return (
     <div
@@ -121,7 +106,7 @@ const VideoPlayer = ({ videoUrl, onVideoSelect, videoMetadata }) => {
             left: "50%",
             transform: "translate(-50%, -50%)",
             textAlign: "center",
-            opacity: isHovered ? 1 : 0, // Show only on hover
+            opacity: isHovered ? 1 : 0,
             transition: "opacity 0.3s ease",
           }}
         >
@@ -140,7 +125,8 @@ const VideoPlayer = ({ videoUrl, onVideoSelect, videoMetadata }) => {
           </button>
         </div>
       </div>
-      {/* Waveform Container */}
+
+      <h2>Audio Waveform</h2>
       <div
         id="waveform"
         ref={waveformRef}
