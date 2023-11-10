@@ -13,7 +13,7 @@ The project contains a ReactJS-based Video player with the following functionali
 3. Display the video on the screen after the user has selected the file using canvas element.
 4. Add a play/pause button in the middle of the video container and it must play/pause on clicking.
 
-### Part 2: Audio Detection and Waveform Display
+#### Part 2: Audio Detection and Waveform Display
 
 1. Detect if video has audio or not, do not allow the upload if the audio is not present.
 2. Display the waveform for the audio in a box below it, refer diagram.
